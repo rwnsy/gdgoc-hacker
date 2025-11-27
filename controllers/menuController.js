@@ -4,7 +4,6 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const COLLECTION_NAME = 'menus';
 
-// Helper: Cek validitas filter (sama kayak sebelumnya)
 const isValid = (val) => val && val !== "" && !String(val).includes("{{");
 
 // --- LOGIC UTAMA ---
@@ -17,7 +16,6 @@ exports.getAllMenus = async (req, res) => {
         // Convert format Firebase ke Array biasa
         let result = snapshot.docs.map(doc => doc.data());
 
-        // 2. LOGIC FILTERING (Copy-Paste dari kode lama, tetap jalan!)
         const { q, category, min_price, max_price, max_cal, sort, page, per_page } = req.query;
 
         if (isValid(q)) {
@@ -74,8 +72,7 @@ exports.createMenu = async (req, res) => {
             }
         }
 
-        // GENERATE ID MANUAL (Agar Numeric, sesuai kemauan Postman)
-        // Kita ambil data terakhir untuk menentukan ID selanjutnya
+
         const snapshot = await db.collection(COLLECTION_NAME).orderBy('id', 'desc').limit(1).get();
         let newId = 1;
         if (!snapshot.empty) {
@@ -93,8 +90,7 @@ exports.createMenu = async (req, res) => {
             updated_at: new Date().toISOString()
         };
 
-        // Simpan ke Firestore
-        // Kita pakai newId sebagai nama dokumen juga biar gampang dicari
+
         await db.collection(COLLECTION_NAME).doc(String(newId)).set(newMenu);
 
         res.status(201).json({ message: "Menu created", data: newMenu });
@@ -133,7 +129,6 @@ exports.updateMenu = async (req, res) => {
 
         await docRef.update(updatedData);
 
-        // Gabungkan data lama dengan yang baru untuk response
         const finalData = { ...doc.data(), ...updatedData };
         res.json({ message: "Menu updated", data: finalData });
     } catch (error) {
@@ -156,7 +151,7 @@ exports.deleteMenu = async (req, res) => {
     }
 };
 
-// --- Re-use Logic untuk Search & Group ---
+
 // (Logic sama persis dengan getAllMenus, hanya routing beda)
 exports.searchMenu = exports.getAllMenus; 
 
