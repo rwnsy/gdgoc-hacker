@@ -1,6 +1,6 @@
 # 🍔 Smart Menu Catalog API (The Hacker Project)
 
-> **Google Developer Days of Code UGM - Backend Case Study Submission**
+> **Google Developer Group on Campus UGM - Backend Case Study Submission**
 
 This project is a robust RESTful API designed to manage a food menu catalog. It goes beyond standard CRUD operations by integrating **Google Gemini AI** for intelligent content generation and **Google Firestore** for scalable data storage.
 
