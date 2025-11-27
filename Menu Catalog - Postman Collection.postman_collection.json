@@ -1,0 +1,788 @@
+{
+	"info": {
+		"_postman_id": "ba1d26d9-17f1-4abf-8bf1-399f52d55b3d",
+		"name": "Menu Catalog - Postman Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34028309"
+	},
+	"item": [
+		{
+			"name": "Create Menu (POST /menu)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Schema is valid\", function () {",
+							"  var schema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"      message: { type: \"string\" },",
+							"      data: {",
+							"        type: \"object\",",
+							"        properties: {",
+							"          name: { type: \"string\" },",
+							"          category: { type: \"string\" },",
+							"          calories: { type: \"number\" },",
+							"          price: { type: \"number\" },",
+							"          ingredients: { type: \"array\" },",
+							"          description: { type: \"string\" },",
+							"          id: { type: \"number\" },",
+							"          created_at: { type: \"string\" },",
+							"          updated_at: { type: \"string\" }",
+							"        },",
+							"        required: [\"name\", \"category\", \"calories\", \"price\", \"ingredients\", \"description\", \"id\"]",
+							"      }",
+							"    },",
+							"    required: [\"message\", \"data\"]",
+							"  };",
+							"",
+							"  var response = pm.response.json();",
+							"  pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Es Kopi Susu\",\n  \"category\": \"drinks\",\n  \"calories\": 180,\n  \"price\": 25000.00,\n  \"ingredients\": [\"coffee\", \"milk\", \"ice\", \"sugar\"],\n  \"description\": \"Classic iced coffee with milk\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/menu",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"menu"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Menu (GET /menu) - basic",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var response = pm.response.json();",
+							"",
+							"pm.test(\"Response schema is valid\", function () {",
+							"  var schema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"      data: {",
+							"        type: \"array\",",
+							"        items: {",
+							"          type: \"object\",",
+							"          properties: {",
+							"            id: { type: \"number\" },",
+							"            name: { type: \"string\" },",
+							"            category: { type: \"string\" },",
+							"            calories: { type: \"number\" },",
+							"            price: { type: \"number\" },",
+							"            ingredients: { type: \"array\" },",
+							"            description: { type: \"string\" },",
+							"            created_at: { type: \"string\" },",
+							"            updated_at: { type: \"string\" }",
+							"          },",
+							"          required: [\"id\", \"name\", \"category\", \"calories\", \"price\"]",
+							"        }",
+							"      }",
+							"    },",
+							"    required: [\"data\"]",
+							"  };",
+							"",
+							"  pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});",
+							"",
+							"// Set collection variable menu_id from first item",
+							"if (response.data && response.data.length > 0) {",
+							"    pm.collectionVariables.set(\"menu_id\", response.data[0].id);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/menu",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"menu"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Menu (GET /menu) - with filters & pagination",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var response = pm.response.json();",
+							"",
+							"pm.test(\"Response schema is valid\", function () {",
+							"  var schema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"      data: {",
+							"        type: \"array\",",
+							"        items: {",
+							"          type: \"object\",",
+							"          properties: {",
+							"            id: { type: \"number\" },",
+							"            name: { type: \"string\" },",
+							"            category: { type: \"string\" },",
+							"            calories: { type: \"number\" },",
+							"            price: { type: \"number\" },",
+							"            ingredients: { type: \"array\" },",
+							"            description: { type: \"string\" }",
+							"          },",
+							"          required: [\"id\", \"name\", \"category\", \"price\"]",
+							"        }",
+							"      },",
+							"      pagination: {",
+							"        type: \"object\",",
+							"        properties: {",
+							"          total: { type: \"number\" },",
+							"          page: { type: \"number\" },",
+							"          per_page: { type: \"number\" },",
+							"          total_pages: { type: \"number\" }",
+							"        }",
+							"      }",
+							"    },",
+							"    required: [\"data\"]",
+							"  };",
+							"",
+							"  pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/menu?q={{q}}&category={{category}}&min_price={{min_price}}&max_price={{max_price}}&max_cal={{max_cal}}&page={{page}}&per_page={{per_page}}&sort={{sort}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"menu"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "{{q}}"
+						},
+						{
+							"key": "category",
+							"value": "{{category}}"
+						},
+						{
+							"key": "min_price",
+							"value": "{{min_price}}"
+						},
+						{
+							"key": "max_price",
+							"value": "{{max_price}}"
+						},
+						{
+							"key": "max_cal",
+							"value": "{{max_cal}}"
+						},
+						{
+							"key": "page",
+							"value": "{{page}}"
+						},
+						{
+							"key": "per_page",
+							"value": "{{per_page}}"
+						},
+						{
+							"key": "sort",
+							"value": "{{sort}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Menu by ID (GET /menu/:id)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response schema is valid\", function () {",
+							"  var schema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"      data: {",
+							"        type: \"object\",",
+							"        properties: {",
+							"          id: { type: \"number\" },",
+							"          name: { type: \"string\" },",
+							"          category: { type: \"string\" },",
+							"          calories: { type: \"number\" },",
+							"          price: { type: \"number\" },",
+							"          ingredients: { type: \"array\" },",
+							"          description: { type: \"string\" }",
+							"        },",
+							"        required: [\"id\", \"name\", \"category\", \"price\"]",
+							"      }",
+							"    },",
+							"    required: [\"data\"]",
+							"  };",
+							"",
+							"  var response = pm.response.json();",
+							"  pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/menu/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"menu",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Full Update Menu (PUT /menu/:id)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Schema is valid\", function () {",
+							"  var schema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"      message: { type: \"string\" },",
+							"      data: {",
+							"        type: \"object\",",
+							"        properties: {",
+							"          id: { type: \"number\" },",
+							"          name: { type: \"string\" },",
+							"          category: { type: \"string\" },",
+							"          calories: { type: \"number\" },",
+							"          price: { type: \"number\" },",
+							"          ingredients: { type: \"array\" },",
+							"          description: { type: \"string\" },",
+							"          created_at: { type: \"string\" },",
+							"          updated_at: { type: \"string\" }",
+							"        },",
+							"        required: [\"id\", \"name\", \"category\", \"price\"]",
+							"      }",
+							"    },",
+							"    required: [\"message\", \"data\"]",
+							"  };",
+							"",
+							"  var response = pm.response.json();",
+							"  pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Es Kopi Susu Premium\",\n  \"category\": \"drinks\",\n  \"calories\": 190,\n  \"price\": 30000.00,\n  \"ingredients\": [\"coffee\", \"milk\", \"ice\", \"condensed_milk\"],\n  \"description\": \"Premium recipe\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/menu/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"menu",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Menu (DELETE /menu/:id)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response schema is valid\", function () {",
+							"    var schema = {",
+							"        type: \"object\",",
+							"        properties: {",
+							"            message: {",
+							"                type: \"string\"",
+							"            }",
+							"        },",
+							"        required: [\"message\"]",
+							"    };",
+							"    pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/menu/{{menu_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"menu",
+						"{{menu_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Group By Category - counts (GET /menu/group-by-category?mode=count)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response schema is valid\", function () {",
+							"  var schema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"      data: {",
+							"        type: \"object\",",
+							"        additionalProperties: { type: \"number\" }",
+							"      }",
+							"    },",
+							"    required: [\"data\"]",
+							"  };",
+							"",
+							"  var response = pm.response.json();",
+							"  pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Data contains category counts\", function () {",
+							"    const responseData = pm.response.json();",
+							"    pm.expect(responseData.data).to.be.an('object');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/menu/group-by-category?mode=count",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"menu",
+						"group-by-category"
+					],
+					"query": [
+						{
+							"key": "mode",
+							"value": "count"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Group By Category - list (GET /menu/group-by-category?mode=list&per_category=5)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response schema is valid\", function () {",
+							"  var schema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"      data: {",
+							"        type: \"object\",",
+							"        additionalProperties: {",
+							"          type: \"array\",",
+							"          items: {",
+							"            type: \"object\",",
+							"            properties: {",
+							"              id: { type: \"number\" },",
+							"              name: { type: \"string\" },",
+							"              category: { type: \"string\" },",
+							"              price: { type: \"number\" }",
+							"            },",
+							"            required: [\"id\", \"name\"]",
+							"          }",
+							"        }",
+							"      }",
+							"    },",
+							"    required: [\"data\"]",
+							"  };",
+							"",
+							"  var response = pm.response.json();",
+							"  pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Data is grouped by category\", function () {",
+							"    const responseData = pm.response.json();",
+							"    pm.expect(responseData.data).to.be.an('object');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/menu/group-by-category?mode=list&per_category=5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"menu",
+						"group-by-category"
+					],
+					"query": [
+						{
+							"key": "mode",
+							"value": "list"
+						},
+						{
+							"key": "per_category",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search by full-text (GET /menu/search?q=...) - convenience",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var response = pm.response.json();",
+							"",
+							"pm.test(\"Response schema is valid\", function () {",
+							"  var schema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"      data: {",
+							"        type: \"array\",",
+							"        items: {",
+							"          type: \"object\",",
+							"          properties: {",
+							"            id: { type: \"number\" },",
+							"            name: { type: \"string\" },",
+							"            category: { type: \"string\" },",
+							"            calories: { type: \"number\" },",
+							"            price: { type: \"number\" },",
+							"            ingredients: { type: \"array\" },",
+							"            description: { type: \"string\" }",
+							"          },",
+							"          required: [\"id\", \"name\"]",
+							"        }",
+							"      },",
+							"      pagination: {",
+							"        type: \"object\",",
+							"        properties: {",
+							"          total: { type: \"number\" },",
+							"          page: { type: \"number\" },",
+							"          per_page: { type: \"number\" }",
+							"        }",
+							"      }",
+							"    },",
+							"    required: [\"data\"]",
+							"  };",
+							"",
+							"  pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Search returns array of results\", function () {",
+							"    const responseData = pm.response.json();",
+							"    pm.expect(responseData.data).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/menu/search?q={{q}}&page={{page}}&per_page={{per_page}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"menu",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "{{q}}"
+						},
+						{
+							"key": "page",
+							"value": "{{page}}"
+						},
+						{
+							"key": "per_page",
+							"value": "{{per_page}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Not Found Menu",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 404\", function () {",
+							"    pm.expect(pm.response.code).to.equal(404);",
+							"});",
+							"",
+							"pm.test(\"Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.message).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Message is a non-empty string\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.message).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Message should not be empty\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/menu/99999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"menu",
+						"99999"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "https://api.example.com",
+			"type": "string"
+		},
+		{
+			"key": "menu_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "page",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "per_page",
+			"value": "10",
+			"type": "string"
+		},
+		{
+			"key": "q",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "category",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "min_price",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "max_price",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "max_cal",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "sort",
+			"value": "price:asc",
+			"type": "string"
+		}
+	]
+}
